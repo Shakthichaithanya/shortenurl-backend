@@ -6,10 +6,9 @@ import com.shortenurl.shortenurl.service.ShortenurlService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.view.RedirectView;
 
 @RestController
 @RequestMapping("/api/")
@@ -19,13 +18,19 @@ public class ShortenurlController {
     private ShortenurlService shortenurlService;
 
     @PostMapping("shortenurl")
-    public ResponseEntity<ResponseInfo> createShortenURL(@RequestBody Shortenurl shortUrl) {
+    public ResponseEntity<ResponseInfo> createShortenURL(@Validated @RequestBody Shortenurl shortUrl) {
 
         String message = shortenurlService.createShortUrl(shortUrl);
-
         ResponseInfo response = new ResponseInfo(HttpStatus.CREATED, message);
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
 
-        return new ResponseEntity<>(response,HttpStatus.CREATED);
+    }
+
+    @GetMapping("{shortURL}")
+    public RedirectView redirectToOriginalURL(@PathVariable("shortURL") String shortURL) {
+
+        String originalURL = shortenurlService.getOriginalURL(shortURL);
+        return new RedirectView(originalURL);
 
     }
 

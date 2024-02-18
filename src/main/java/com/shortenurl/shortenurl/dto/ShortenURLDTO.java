@@ -9,7 +9,7 @@ import java.util.UUID;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class shortenURLDTO {
+public class ShortenURLDTO {
 
     private UUID id;
     private long clicks;
