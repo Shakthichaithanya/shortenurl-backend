@@ -1,5 +1,6 @@
 package com.shortenurl.shortenurl.controller;
 
+import com.shortenurl.shortenurl.dto.ShortenURLDTO;
 import com.shortenurl.shortenurl.infos.ResponseInfo;
 import com.shortenurl.shortenurl.model.Shortenurl;
 import com.shortenurl.shortenurl.service.ShortenurlService;
@@ -9,6 +10,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.view.RedirectView;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/")
@@ -32,6 +35,11 @@ public class ShortenurlController {
         String originalURL = shortenurlService.getOriginalURL(shortURL);
         return new RedirectView(originalURL);
 
+    }
+
+    @GetMapping("shortURLs")
+    public ResponseEntity<List<ShortenURLDTO>> getAllUrlsList() {
+        return new ResponseEntity<>(shortenurlService.getAllURLsList(), HttpStatus.OK);
     }
 
 }
