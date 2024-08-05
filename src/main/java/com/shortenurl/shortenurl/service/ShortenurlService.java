@@ -9,23 +9,43 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 public class ShortenurlService {
+    private final ShortenurlRepository shortenurlRepository;
+    private final ModelMapper modelMapper;
+
+    private SecureRandom random = new SecureRandom();
     @Autowired
-    private ShortenurlRepository shortenurlRepository;
-    @Autowired
-    private ModelMapper modelMapper;
+    public ShortenurlService(ShortenurlRepository shortenurlRepository, ModelMapper modelMapper){
+        this.shortenurlRepository =shortenurlRepository;
+        this.modelMapper = modelMapper;
+    }
+
+    public String generateRandomString(){
+        String alphaNumeric  = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890";
+
+        StringBuilder result = new StringBuilder();
+        for(int i=0; i<10;i++){
+            int index = this.random.nextInt(alphaNumeric.length());
+            char ch = alphaNumeric.charAt(index);
+            result.append(ch);
+        }
+        return result.toString();
+    }
 
     public String createShortUrl(Shortenurl shortUrl) {
 
         shortUrl.setCreatedDateTime(LocalDateTime.now());
         shortUrl.setUpdatedDateTime(LocalDateTime.now());
         try {
+            if(shortUrl.getShortURL() == null || shortUrl.getShortURL().isEmpty() || shortUrl.getShortURL().isBlank()){
+                shortUrl.setShortURL(generateRandomString());
+            }
             shortenurlRepository.save(shortUrl);
         } catch (Exception exception) {
             throw new DuplicateShortURLException("Passed ShortUrl is already present please send unique value");
@@ -52,6 +72,6 @@ public class ShortenurlService {
 
     public List<ShortenURLDTO> getAllURLsList() {
         List<Shortenurl> shortUrls = shortenurlRepository.findAll();
-        return shortUrls.stream().map(url -> modelMapper.map(url, ShortenURLDTO.class)).collect(Collectors.toList());
+        return shortUrls.stream().map(url -> modelMapper.map(url, ShortenURLDTO.class)).toList();
     }
 }

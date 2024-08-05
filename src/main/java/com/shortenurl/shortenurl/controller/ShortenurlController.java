@@ -6,6 +6,7 @@ import com.shortenurl.shortenurl.model.Shortenurl;
 import com.shortenurl.shortenurl.service.ShortenurlService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -14,11 +15,15 @@ import org.springframework.web.servlet.view.RedirectView;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/")
+@RequestMapping(value = "/api/", produces = MediaType.APPLICATION_JSON_VALUE)
 public class ShortenurlController {
 
+    private final ShortenurlService shortenurlService;
+
     @Autowired
-    private ShortenurlService shortenurlService;
+    public ShortenurlController(ShortenurlService shortenurlService){
+        this.shortenurlService = shortenurlService;
+    }
 
     @PostMapping("shortenurl")
     public ResponseEntity<ResponseInfo> createShortenURL(@Validated @RequestBody Shortenurl shortUrl) {
@@ -31,7 +36,6 @@ public class ShortenurlController {
 
     @GetMapping("{shortURL}")
     public RedirectView redirectToOriginalURL(@PathVariable("shortURL") String shortURL) {
-
         String originalURL = shortenurlService.getOriginalURL(shortURL);
         return new RedirectView(originalURL);
 

@@ -12,16 +12,16 @@ import org.springframework.web.context.request.WebRequest;
 import java.time.LocalDate;
 
 @RestControllerAdvice
-public class GlobalException {
+public class GlobalException extends RuntimeException{
 
     @ExceptionHandler(ShortURLNotFoundException.class)
-    public ResponseEntity<ErrorInfo> ShortURLNotExceptionHandler(ShortURLNotFoundException exception, WebRequest request) {
+    public ResponseEntity<ErrorInfo> shortURLNotExceptionHandler(ShortURLNotFoundException exception, WebRequest request) {
         ErrorInfo error = new ErrorInfo(HttpStatus.NOT_FOUND, LocalDate.now(), exception.getMessage(), request.getDescription(false));
         return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(DuplicateShortURLException.class)
-    public ResponseEntity<ErrorInfo> DuplicateShortURLExceptionHandler(DuplicateShortURLException exception, WebRequest request) {
+    public ResponseEntity<ErrorInfo> duplicateShortURLExceptionHandler(DuplicateShortURLException exception, WebRequest request) {
         ErrorInfo error = new ErrorInfo(HttpStatus.BAD_REQUEST, LocalDate.now(), exception.getMessage(), request.getDescription(false));
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
