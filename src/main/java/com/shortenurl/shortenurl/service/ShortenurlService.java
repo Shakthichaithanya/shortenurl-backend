@@ -7,6 +7,8 @@ import com.shortenurl.shortenurl.model.Shortenurl;
 import com.shortenurl.shortenurl.repository.ShortenurlRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.security.SecureRandom;
@@ -53,14 +55,15 @@ public class ShortenurlService {
         return "short url created";
     }
 
-    public void updateShortUrlClicksAndDate(Shortenurl shortUrl) {
+    public Shortenurl updateShortUrlClicksAndDate(Shortenurl shortUrl) {
         shortUrl.setClicks(shortUrl.getClicks() + 1);
         shortUrl.setUpdatedDateTime(LocalDateTime.now());
-        shortenurlRepository.save(shortUrl);
+        return shortenurlRepository.save(shortUrl);
     }
 
+    @Cacheable(value = "urls",key = "#shortURL")
     public String getOriginalURL(String shortURL) {
-
+        System.out.println("inside method");
         Optional<Shortenurl> shortUrl = shortenurlRepository.findByShortURL(shortURL);
         if (shortUrl.isPresent()) {
             updateShortUrlClicksAndDate(shortUrl.get());
@@ -70,7 +73,9 @@ public class ShortenurlService {
 
     }
 
+    @Cacheable(value = "UrlsList")
     public List<ShortenURLDTO> getAllURLsList() {
+        System.out.println("list method");
         List<Shortenurl> shortUrls = shortenurlRepository.findAll();
         return shortUrls.stream().map(url -> modelMapper.map(url, ShortenURLDTO.class)).toList();
     }

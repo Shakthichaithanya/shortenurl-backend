@@ -1,8 +1,6 @@
 package com.shortenurl.shortenurl.exception;
 
 import com.shortenurl.shortenurl.infos.ErrorInfo;
-import org.hibernate.exception.ConstraintViolationException;
-import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
