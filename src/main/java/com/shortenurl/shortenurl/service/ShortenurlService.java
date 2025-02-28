@@ -81,7 +81,7 @@ public class ShortenurlService {
         List<Shortenurl> shortUrls = shortenurlRepository.findAll();
         return shortUrls.stream().map(url -> modelMapper.map(url, ShortenURLDTO.class)).toList();
     }
-    @Scheduled(cron = "0 0 9-18 * MON-FRI ?")
+    @Scheduled(cron = "0 0 9-18 * * ?")
     @CachePut(value = "urls")
     public List<ShortenURLDTO> getAllURLsListUpdatedCache() {
         System.out.println("list method");
