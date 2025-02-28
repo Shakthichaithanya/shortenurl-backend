@@ -7,8 +7,11 @@ import com.shortenurl.shortenurl.model.Shortenurl;
 import com.shortenurl.shortenurl.repository.ShortenurlRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.scheduling.annotation.Schedules;
 import org.springframework.stereotype.Service;
 
 import java.security.SecureRandom;
@@ -55,13 +58,12 @@ public class ShortenurlService {
         return "short url created";
     }
 
-    public Shortenurl updateShortUrlClicksAndDate(Shortenurl shortUrl) {
+    public void updateShortUrlClicksAndDate(Shortenurl shortUrl) {
         shortUrl.setClicks(shortUrl.getClicks() + 1);
         shortUrl.setUpdatedDateTime(LocalDateTime.now());
-        return shortenurlRepository.save(shortUrl);
+        shortenurlRepository.save(shortUrl);
     }
 
-    @Cacheable(value = "urls",key = "#shortURL")
     public String getOriginalURL(String shortURL) {
         System.out.println("inside method");
         Optional<Shortenurl> shortUrl = shortenurlRepository.findByShortURL(shortURL);
@@ -73,10 +75,21 @@ public class ShortenurlService {
 
     }
 
-    @Cacheable(value = "UrlsList")
+    @Cacheable(value = "urls")
     public List<ShortenURLDTO> getAllURLsList() {
         System.out.println("list method");
         List<Shortenurl> shortUrls = shortenurlRepository.findAll();
         return shortUrls.stream().map(url -> modelMapper.map(url, ShortenURLDTO.class)).toList();
+    }
+    @Scheduled(cron = "0 0 9-18 * MON-FRI ?")
+    @CachePut(value = "urls")
+    public List<ShortenURLDTO> getAllURLsListUpdatedCache() {
+        System.out.println("list method");
+        List<Shortenurl> shortUrls = shortenurlRepository.findAll();
+        return shortUrls.stream().map(url -> modelMapper.map(url, ShortenURLDTO.class)).toList();
+    }
+
+    @CacheEvict(value = "urls",allEntries = true)
+    public void deleteCache() {
     }
 }
